@@ -1,0 +1,48 @@
+app_name: "Apex Margin Advisor"
+app_full_name: "TIC Portfolio Margin & Exception Intelligence Assistant"
+tagline: "Management by Exception across OWMS, EFL, GTE, CRC & CAT"
+company_short: "Apex TIC Group"
+company_long: "Apex Global Testing, Inspection & Certification"
+version: "1.0.0"
+
+as_of_date: "2026-11-20"
+fiscal_month: "2026-11"
+seed: 42
+shared_overhead_monthly_usd: 120000.0
+shared_overhead_cat8000_usd: 78000.0
+shared_overhead_cat9000_usd: 42000.0
+
+personas:
+  "Operations Portfolio Director (BU Manager)":
+    user_id: "bu_director"
+    role: "Operations Portfolio Director (BU Manager)"
+    display_short: "BU Director"
+    scope_label: "All 10 Business Units · 20 Portfolio Contracts (Strategic & Net Operating Margin)"
+    tone: "Executive, strategic, risk-weighted, variance-focused"
+    kpi_focus:
+      - "Portfolio provisional & net operating margin %"
+      - "Month-to-date (MTD) revenue gap vs. target"
+      - "Underperforming bottom 10% contracts"
+      - "Billable utilization rate & shared lab overhead burden"
+  "Project Delivery Manager (PM)":
+    user_id: "pm_delivery"
+    role: "Project Delivery Manager (PM)"
+    display_short: "Project Delivery Manager"
+    scope_label: "Assigned Operational Delivery Portfolio (6 Active Contracts · Field & Lab Teams)"
+    tone: "Practical, action-focused, field-oriented, milestone-driven"
+    kpi_focus:
+      - "Milestone completion status & overdue schedules"
+      - "Actual vs. planned labor hour burn"
+      - "Timesheets awaiting approval (> 7 business days)"
+      - "Immediate tactical remediation actions"
+  "Commercial Contract Administrator":
+    user_id: "commercial_admin"
+    role: "Commercial Contract Administrator"
+    display_short: "Commercial Contract Admin"
+    scope_label: "Cross-BU Commercial Contracts & EFL Ledger Reconciliation (All 20 Contracts)"
+    tone: "Rigorous, compliance-oriented, auditable, detail-driven"
+    kpi_focus:
+      - "Unbilled WIP (Work In Progress) & pending billing lag"
+      - "Milestone-to-GL revenue reconciliation variance"
+      - "Unmapped CRC rate cards & orphaned fee lines"
+      - "Unmatched EFL contract IDs & special-purpose adjustments"

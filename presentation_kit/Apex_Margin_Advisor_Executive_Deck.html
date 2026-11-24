@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Apex Margin Advisor — Executive Presentation &amp; Live Demo Deck</title>
+<style>
+  :root {
+    --navy: #0B1F3A; --emerald: #065F46; --emerald-light: #ECFDF5;
+    --royal: #1E3A8A; --royal-light: #EFF6FF;
+    --amber: #B45309; --amber-light: #FEF3C7;
+    --crimson: #B91C1C; --crimson-light: #FEF2F2;
+    --slate: #475569; --border: #E2E8F0; --bg: #F8FAFC; --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    background: #071324; color: var(--navy);
+  }
+  .deck-shell { width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .slide-viewport {
+    position: relative; width: min(96vw, calc((100vh - 64px) * 16 / 9)); aspect-ratio: 16 / 9;
+    background: var(--bg); border-radius: 16px; box-shadow: 0 28px 80px rgba(0,0,0,0.55); overflow: hidden;
+  }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; padding: 32px 44px 24px; background: var(--bg); }
+  .slide.active { display: flex; }
+  .slide.hero { background: linear-gradient(135deg, #081A33 0%, #065F46 58%, #1E3A8A 100%); color: #FFF; }
+  .s-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+  .kicker { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--emerald); margin-bottom: 3px; }
+  .s-title { font-size: clamp(1.26rem, 1.95vw, 1.82rem); font-weight: 800; color: var(--navy); line-height: 1.18; }
+  .s-badge { background: var(--royal-light); color: var(--royal); font-size: 0.74rem; font-weight: 700; padding: 5px 12px; border-radius: 999px; white-space: nowrap; border: 1px solid #BFDBFE; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; flex: 1; min-height: 0; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; flex: 1; min-height: 0; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; flex: 1; min-height: 0; }
+  .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex: 1; min-height: 0; }
+  .grid-video { display: grid; grid-template-columns: 1.52fr 1fr; gap: 18px; flex: 1; min-height: 0; align-items: stretch; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 7px; min-height: 0; }
+  .card.emerald { border-top: 4px solid var(--emerald); }
+  .card.royal { border-top: 4px solid var(--royal); }
+  .card.amber { border-top: 4px solid var(--amber); }
+  .card.crimson { border-top: 4px solid var(--crimson); background: #FFFDFD; }
+  .card h3 { font-size: 0.98rem; font-weight: 700; color: var(--navy); }
+  .card p, .card li { font-size: 0.82rem; line-height: 1.43; color: var(--slate); }
+  .card ul { padding-left: 18px; display: flex; flex-direction: column; gap: 5px; }
+  .card li strong { color: var(--navy); }
+  .pill { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 6px; margin-bottom: 2px; }
+  .pill.e { background: var(--emerald-light); color: var(--emerald); }
+  .pill.r { background: var(--royal-light); color: var(--royal); }
+  .pill.a { background: var(--amber-light); color: var(--amber); }
+  code { background: #EFF6FF; color: #1E3A8A; padding: 1px 6px; border-radius: 5px; font-family: ui-monospace, Menlo, monospace; font-size: 0.86em; font-weight: 600; }
+  .callout { background: linear-gradient(90deg, var(--emerald-light) 0%, var(--royal-light) 100%); border-left: 5px solid var(--emerald); border-radius: 10px; padding: 10px 15px; font-size: 0.84rem; color: var(--navy); font-weight: 600; margin-top: 12px; }
+  .vid-col { display: flex; flex-direction: column; justify-content: center; gap: 10px; min-height: 0; }
+  .vid-frame { background: #0B1628; border-radius: 12px; overflow: hidden; border: 2px solid #CBD5E1; box-shadow: 0 10px 28px rgba(11,31,58,0.12); }
+  .vid-bar { background: #0F172A; color: #E2E8F0; font-size: 0.74rem; font-weight: 600; padding: 6px 12px; display: flex; justify-content: space-between; }
+  .vid-frame video { width: 100%; aspect-ratio: 16 / 9; object-fit: contain; background: #0F172A; display: block; }
+  .thumb-block { margin-top: auto; padding-top: 8px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+  .thumb-label { font-size: 0.70rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate); }
+  .thumb-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .thumb-row img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: top left; border-radius: 7px; border: 1px solid #CBD5E1; background: #FFF; }
+  .nav-bar { display: flex; align-items: center; gap: 14px; margin-top: 10px; color: #CBD5E1; font-size: 0.84rem; }
+  .nav-bar button { background: #1E293B; color: #FFF; border: 1px solid #334155; border-radius: 8px; padding: 6px 14px; cursor: pointer; font-weight: 600; }
+  .nav-bar button:hover { background: var(--emerald); border-color: var(--emerald); }
+</style>
+</head>
+<body>
+<div class="deck-shell">
+  <div class="slide-viewport">
+
+    <!-- Slide 1 -->
+    <section class="slide hero active">
+      <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap: 24px; flex:1; align-items:center;">
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <span style="background:rgba(255,255,255,0.16); width:fit-content; padding:5px 12px; border-radius:999px; font-size:0.75rem; font-weight:700; letter-spacing:0.08em;">TIC PORTFOLIO MARGIN &amp; EXCEPTION INTELLIGENCE</span>
+          <h1 style="font-size:clamp(1.85rem, 2.9vw, 2.65rem); font-weight:800; line-height:1.12;">Apex Margin Advisor: Management by Exception &amp; Live CAT Write-Back</h1>
+          <p style="font-size:0.94rem; line-height:1.48; color:#E2E8F0;">Autonomously isolates runaway burn, utilization gaps, and ERP ledger mismatches across 9 governed views &mdash; and enables BU Managers, Project Managers, and Contract Admins to write field clarifications, N-1 instructions, task assignments, and leadership decisions directly back into the database.</p>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:11px; margin-top:2px;">
+            <div style="background:rgba(15,23,42,0.55); border:1px solid #6EE7B7; border-radius:10px; padding:11px;">
+              <div style="font-size:1.15rem; font-weight:800; color:#6EE7B7;">20 Contracts &middot; 10 BUs</div>
+              <div style="font-size:0.76rem; color:#E2E8F0; margin-top:4px;">9 governed views across OWMS, EFL, GTE, CRC &amp; CAT</div>
+            </div>
+            <div style="background:rgba(15,23,42,0.55); border:1px solid #6EE7B7; border-radius:10px; padding:11px;">
+              <div style="font-size:1.15rem; font-weight:800; color:#6EE7B7;">24/24 Verified Eval</div>
+              <div style="font-size:0.76rem; color:#E2E8F0; margin-top:4px;">0.018 s deterministic baseline + LiteLLM support</div>
+            </div>
+            <div style="background:rgba(15,23,42,0.55); border:1px solid #6EE7B7; border-radius:10px; padding:11px;">
+              <div style="font-size:1.15rem; font-weight:800; color:#6EE7B7;">Live DB Write-Back</div>
+              <div style="font-size:0.76rem; color:#E2E8F0; margin-top:4px;">4 CAT tables for notes, N-1 plans, tasks &amp; decisions</div>
+            </div>
+          </div>
+          <div style="background:rgba(245,158,11,0.18); border:1px solid #FBBF24; border-radius:8px; padding:8px 12px; font-size:0.80rem; color:#FEF3C7;">
+            <b>Synthetic TIC benchmark dataset &mdash; prototype for demonstration only.</b> Fictional contracts, people, and figures.
+          </div>
+        </div>
+        <div class="card emerald" style="color:var(--navy); gap:9px;">
+          <h3 style="color:var(--emerald); text-transform:uppercase; font-size:0.80rem; letter-spacing:0.08em;">Closed-Loop Margin Intelligence Stack</h3>
+          <div style="background:var(--royal-light); border:1px solid var(--royal); border-radius:8px; padding:9px;">
+            <div style="font-size:0.70rem; font-weight:800; color:var(--royal);">INTERACTIVE UX &middot; 3 PERSONAS &middot; 8 SLASH COMMANDS</div>
+            <div style="font-size:0.82rem; font-weight:700; margin-top:3px;">Chat + Inline Write-Back &middot; Exception Triage &middot; Weekly/Monthly Plan</div>
+          </div>
+          <div style="text-align:center; font-size:0.70rem; font-weight:800; color:var(--emerald);">&mdash;&mdash; GOVERNED SEMANTIC &amp; WRITE-BACK ENGINE &mdash;&mdash;</div>
+          <div style="background:#ECFDF5; border-left:4px solid #065F46; padding:7px 10px; border-radius:6px; font-size:0.79rem;"><b>14 Governed MCP Tools:</b> Zero LLM math &middot; Special Purpose N/A &middot; RLS/RBAC</div>
+          <div style="background:#FEF3C7; border-left:4px solid #B45309; padding:7px 10px; border-radius:6px; font-size:0.79rem;"><b>Persistent CAT Write-Back DB:</b> Comments &middot; N-1 Plans &middot; Tasks &middot; Decisions</div>
+          <div style="background:#EFF6FF; border-left:4px solid #1E3A8A; padding:7px 10px; border-radius:6px; font-size:0.79rem;"><b>9 Governed Views (<code>vwm.*</code>):</b> LEFT JOINs &middot; Trimmed EFL keys &middot; $120k Overhead</div>
+          <div style="background:#F1F5F9; border-left:4px solid #475569; padding:7px 10px; border-radius:6px; font-size:0.79rem;"><b>5 TIC Modules (VWM/VDM):</b> OWMS (CORE) &middot; EFL (JDE) &middot; GTE &middot; CRC &middot; CAT</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 2 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Executive Context</div><div class="s-title">Why TIC Contract Margins Erode Before Leaders Can Intervene</div></div><span class="s-badge">Problem &rarr; Solution</span></div>
+      <div class="grid-2">
+        <div class="card crimson"><h3>1. Manual Auditing of Healthy Contracts</h3><p>Regional leaders lose hours scanning spreadsheets across healthy contracts. Apex Margin Advisor ranks only active exceptions on a 0&ndash;100 Priority Score (Materiality 45 + Urgency 25 + Deterioration 15 + Latency 15).</p></div>
+        <div class="card amber"><h3>2. Mixing Fixed-Scope &amp; T&amp;M Economics</h3><p>Fixed-Scope contracts bleed margin dollar-for-dollar when hours overrun (&gt;115% alert, &gt;150% accrual block), while T&amp;M leaks revenue when utilization drops below 80% or unapproved timesheets lag &gt;7 days.</p></div>
+        <div class="card royal"><h3>3. ERP Link Gaps &amp; Misleading Margin Ratios</h3><p>Naive reports print 100% margin on rebate contracts, -100% on internal calibration pools, or $0 labor on unmapped rates. Our engine enforces strict <code>N/A</code> rules, unvalued exposure alerts, and LEFT JOIN EFL checks.</p></div>
+        <div class="card emerald"><h3>4. Read-Only Dashboards Lose Field Context</h3><p>A red variance cell never explains a 4-day winter storm, underestimated bid scope, or unassigned task &mdash; and cannot delegate N-1 actions. Built-in CAT write-back closes the loop from insight to weekly/monthly execution.</p></div>
+      </div>
+      <div class="callout">Core Shift: Move from passive month-end P&amp;L postmortems to proactive weekly exception triage with live N-1 accountability.</div>
+    </section>
+
+    <!-- Slide 3 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">9-View Relational Foundation</div><div class="s-title">Five TIC Modules Mapped to Enterprise VWM / VDM Sources</div></div><span class="s-badge">9 Views + CAT</span></div>
+      <div class="grid-5">
+        <div class="card emerald"><span class="pill e">OWMS</span><h3>Operations Work Mgmt</h3><ul><li><code>Dim_Contracts</code></li><li><code>Dim_Services</code> (orphan filter)</li><li><code>Dim_Tasks</code> (date check)</li><li>CORE <code>Project.*</code> &amp; <code>Admin.*</code></li></ul></div>
+        <div class="card royal"><span class="pill r">GTE</span><h3>Global Time &amp; Expense</h3><ul><li><code>Fact_Timesheets</code></li><li>Approved vs &gt;7d Pending</li><li>Billable pay flags</li><li>CORE Timecard / <code>F06116Z1</code></li></ul></div>
+        <div class="card"><span class="pill e">CRC</span><h3>Commercial Rate Catalog</h3><ul><li><code>Dim_RateCatalog</code></li><li>Cost ($52&ndash;$145/hr)</li><li>Sell ($85&ndash;$275/hr)</li><li>Missing rates = unvalued</li></ul></div>
+        <div class="card amber"><span class="pill a">EFL</span><h3>Enterprise Financial GL</h3><ul><li><code>Fact_GeneralLedger</code></li><li><code>Fact_SharedOverhead</code> ($120k)</li><li>Cat-1/2 rev, 7x, 8000/9000</li><li>JDE <code>F5201</code> / <code>F0911</code> / <code>F0901</code></li></ul></div>
+        <div class="card royal"><span class="pill r">CAT</span><h3>Collaborative Action DB</h3><ul><li><code>Fact_Exceptions</code> (0&ndash;100)</li><li><code>Fact_ActionLog</code> (N-1 plan)</li><li>Comments &middot; Tasks &middot; Decisions</li><li>SharePoint / SQLite store</li></ul></div>
+      </div>
+      <div class="callout">VWM Join Hygiene: Strict LEFT JOINs surface unmatched EFL IDs and unmapped CRC rates openly &mdash; fixing legacy INNER JOIN silent drops.</div>
+    </section>
+
+    <!-- Slide 4 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Multi-Persona Governance</div><div class="s-title">One Assistant, Three Role-Tailored Workspaces &amp; Write-Back RBAC</div></div><span class="s-badge">3 Personas &middot; RLS</span></div>
+      <div class="grid-3">
+        <div class="card emerald"><h3>Operations Portfolio Director (BU Manager)</h3><span class="pill e">All 10 BUs &middot; 20 Contracts</span><ul>
+          <li><strong>KPI Focus:</strong> MTD revenue gap (-$308k), commercial provisional margin (59.9%), $120k Indirect Lab Burden &rarr; 52.2% Net Operating Margin.</li>
+          <li><strong>Triage Lens:</strong> Bottom-performing contracts, cross-BU capacity balancing, and portfolio priority queue.</li>
+          <li><strong>Write-Back Powers:</strong> Full access: delegate N-1 weekly/monthly directives, assign tasks, add comments, AND record official Leadership Decisions (<code>/decide</code>).</li>
+        </ul></div>
+        <div class="card royal"><h3>Project Delivery Manager (PM)</h3><span class="pill r">6 Assigned Field/Lab Contracts</span><ul>
+          <li><strong>KPI Focus:</strong> Milestone completion, actual vs. planned hour burn (<code>FS-AERO-104</code> at 168%), overdue tasks, and pending timesheets.</li>
+          <li><strong>RLS Isolation:</strong> Scoped strictly to Jordan Vance's 6 contracts; cross-portfolio contracts (<code>FS-AUTO-305</code>) and BU overhead return clean refusals.</li>
+          <li><strong>Write-Back Powers:</strong> Log field clarifications (weather delays, underestimated scope), assign tasks, and update N-1 action items.</li>
+        </ul></div>
+        <div class="card amber"><h3>Commercial Contract Administrator</h3><span class="pill a">Cross-BU Ledger &middot; All 20</span><ul>
+          <li><strong>KPI Focus:</strong> Unbilled WIP ($7,020 &gt;7d lag), Milestone-to-GL variance (-$31,500 on <code>FS-INFRA-111</code>), Cat-7x review lines, and orphaned fees.</li>
+          <li><strong>Integrity Focus:</strong> Surfaces <code>FS-AUTO-305</code> (Disconnected from EFL), <code>TM-RENEW-202</code> (48h unmapped rate), and <code>SP-REV</code>/<code>SP-COST</code> N/A bridges.</li>
+          <li><strong>Write-Back Powers:</strong> Record CRC/EFL remediation commitments (<code>/log</code>), add commercial clarifications (<code>/comment</code>), and track cleanups.</li>
+        </ul></div>
+      </div>
+      <div class="callout">VWM Section 7 Governance: Formal Leadership Decisions (<code>/decide</code>) are RBAC-gated exclusively to BU Managers; ERP actuals remain immutable.</div>
+    </section>
+
+    <!-- Slide 5 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Live Use Case &middot; Chapter 1 (BU Manager)</div><div class="s-title">BU Manager Walkthrough: Portfolio Summary, Priority Triage &amp; Runaway Burn</div></div><span class="s-badge">1080p Demo 01</span></div>
+      <div class="grid-video">
+        <div class="vid-col">
+          <div class="vid-frame"><div class="vid-bar"><span>&#9654; 01_bu_manager_summary_and_triage.mp4</span><span>1080p H.264</span></div><video controls preload="metadata" poster="screenshots/04_bu_exceptions_priority_queue.png" src="videos/01_bu_manager_summary_and_triage.mp4"></video></div>
+        </div>
+        <div class="card emerald"><h3>BU Director Triage Flow</h3><ul>
+          <li><strong>Sign-In &amp; Persona KPIs:</strong> BU Manager Elena Vance sees <b>$1,297,980</b> MTD rev vs. $1,606,100 target, <b>59.9%</b> provisional / <b>52.2%</b> net margin, and 9 exceptions.</li>
+          <li><strong><code>/summary</code> Rollup:</strong> BU recognized vs. target revenue chart and Indirect Lab Burden ($120k) net operating margin bridge.</li>
+          <li><strong><code>/exceptions</code> Queue:</strong> Isolates <code>EXC-101</code> on <code>FS-AERO-104</code> at #1 (Priority Score <b>100.0/100</b>) with stacked score breakdown.</li>
+          <li><strong><code>/trace FS-AERO-104</code>:</strong> 5-point audit proves <b>168.0%</b> burn (420 vs. 250 hrs), blocked revenue accrual, and 9-view SQL lineage.</li>
+        </ul>
+        <div class="thumb-block"><div class="thumb-label">Key Companion Screens</div><div class="thumb-row"><img src="screenshots/01_signin_gate.png" alt="Sign in" /><img src="screenshots/05_trace_fs_aero_104_and_sql.png" alt="Trace FS-AERO-104" /></div></div></div>
+      </div>
+    </section>
+
+    <!-- Slide 6 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Live Use Case &middot; Chapter 2 (Project Manager + Write-Back)</div><div class="s-title">PM Walkthrough: Scoped RLS &amp; Field Weather Clarification Write-Back</div></div><span class="s-badge">1080p Demo 02</span></div>
+      <div class="grid-video">
+        <div class="vid-col">
+          <div class="vid-frame"><div class="vid-bar"><span>&#9654; 02_pm_persona_rls_and_weather_comment.mp4</span><span>1080p H.264</span></div><video controls preload="metadata" poster="screenshots/08_pm_weather_comment_writeback.png" src="videos/02_pm_persona_rls_and_weather_comment.mp4"></video></div>
+        </div>
+        <div class="card royal"><h3>Field Context &rarr; Database</h3><ul>
+          <li><strong>Dynamic Persona RLS:</strong> Switching to PM Jordan Vance immediately scopes KPI cards and queries to his <b>6 assigned contracts</b>.</li>
+          <li><strong>Fail-Closed Isolation:</strong> Attempting <code>/trace FS-AUTO-305</code> (outside PM scope) returns a clean Row-Level Security refusal.</li>
+          <li><strong>Real-World Weather Write-Back:</strong> PM logs a severe North Sea winter storm delay (+40 hrs, $9,600 standby cost) on <code>FS-OFFSHORE-108</code> directly via <code>/comment</code> &mdash; persisted to <code>cat_contract_comments</code>.</li>
+          <li><strong>Instant Audit Integration:</strong> Re-running <code>/trace FS-OFFSHORE-108</code> surfaces the storm root-cause note right beside financial actuals.</li>
+        </ul>
+        <div class="thumb-block"><div class="thumb-label">Key Companion Screens</div><div class="thumb-row"><img src="screenshots/07_pm_rls_scope_refusal.png" alt="PM RLS refusal" /><img src="screenshots/09_trace_surfaces_weather_note.png" alt="Trace surfaces note" /></div></div></div>
+      </div>
+    </section>
+
+    <!-- Slide 7 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Live Use Case &middot; Chapter 3 (Closed-Loop Write-Back &amp; Action Plan)</div><div class="s-title">N-1 Reportee Delegation, Task Assignment, Decisions &amp; Action Plan Hub</div></div><span class="s-badge">1080p Demo 03</span></div>
+      <div class="grid-video">
+        <div class="vid-col">
+          <div class="vid-frame"><div class="vid-bar"><span>&#9654; 03_writeback_n1_action_plan_and_decisions.mp4</span><span>1080p H.264</span></div><video controls preload="metadata" poster="screenshots/11_action_plan_hub_weekly.png" src="videos/03_writeback_n1_action_plan_and_decisions.mp4"></video></div>
+        </div>
+        <div class="card amber"><h3>Closed-Loop Execution</h3><ul>
+          <li><strong>N-1 Directive in Chat:</strong> BU Manager delegates <code>/assign FS-AERO-104 to Jordan Vance next week</code> to freeze overtime &amp; submit client change order.</li>
+          <li><strong>Open Task Assignment:</strong> Assigns overdue unassigned task <code>TSK-0112-1</code> to <b>T. Sato</b> for Next Week (<code>cat_task_assignments</code> + Action Plan).</li>
+          <li><strong>Business Leader Decision:</strong> Executes <code>/decide FS-OFFSHORE-108</code> approving a 15% storm contingency buffer through Dec 5 (BU Manager RBAC).</li>
+          <li><strong>Action Plan &amp; Notes Hub:</strong> 4-tab workspace filters Next Week / Next Month deliverables, contract notes, tasks, and decisions with live status updates.</li>
+        </ul>
+        <div class="thumb-block"><div class="thumb-label">Key Companion Screens</div><div class="thumb-row"><img src="screenshots/10_writeback_n1_and_decision_chat.png" alt="N-1 chat writeback" /><img src="screenshots/13_action_plan_leadership_decisions.png" alt="Decisions hub" /></div></div></div>
+      </div>
+    </section>
+
+    <!-- Slide 8 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Live Use Case &middot; Chapter 4 (Commercial Contract Admin)</div><div class="s-title">Commercial Integrity: Missing CRC Rates, Unmatched EFL &amp; $120k Overhead</div></div><span class="s-badge">1080p Demo 04</span></div>
+      <div class="grid-video">
+        <div class="vid-col">
+          <div class="vid-frame"><div class="vid-bar"><span>&#9654; 04_commercial_anomalies_and_overhead.mp4</span><span>1080p H.264</span></div><video controls preload="metadata" poster="screenshots/17_shared_overhead_waterfall.png" src="videos/04_commercial_anomalies_and_overhead.mp4"></video></div>
+        </div>
+        <div class="card emerald"><h3>Accounting &amp; Ledger Rigor</h3><ul>
+          <li><strong>Missing CRC Rate Exposure:</strong> <code>/trace TM-RENEW-202</code> flags <b>48 approved hours</b> under unmapped <code>DISC-SPECIALIST-9</code> as unvalued exposure &mdash; never $0.</li>
+          <li><strong>Unmatched EFL Link:</strong> <code>/trace FS-AUTO-305</code> keeps $185k operational progress intact while flagging <code>Disconnected from Financial Ledger</code>.</li>
+          <li><strong>Special Purpose N/A Rules:</strong> <code>SP-REV-901</code> ($45k rebate, $0 cost) and <code>SP-COST-902</code> ($28.5k lab pool, $0 rev) strictly display <code>N/A</code> &mdash; never 100% / -100%.</li>
+          <li><strong>$120k Shared Lab Overhead:</strong> Portfolio &amp; Overhead tab deducts <code>Cat-8000</code> ($78k) + <code>Cat-9000</code> ($42k) as Indirect Lab Burden across all 10 BUs.</li>
+        </ul>
+        <div class="thumb-block"><div class="thumb-label">Key Companion Screens</div><div class="thumb-row"><img src="screenshots/14_commercial_missing_crc_rate.png" alt="Missing CRC rate" /><img src="screenshots/16_special_purpose_na_margin.png" alt="Special purpose N/A" /></div></div></div>
+      </div>
+    </section>
+
+    <!-- Slide 9 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Live Walkthrough &middot; Chapter 5 (Governance &amp; Self-Service Catalog)</div><div class="s-title">Exception Triage Board, 9-View Data Catalog, Integrity Audit &amp; Security</div></div><span class="s-badge">1080p Demo 05</span></div>
+      <div class="grid-video">
+        <div class="vid-col">
+          <div class="vid-frame"><div class="vid-bar"><span>&#9654; 05_data_catalog_integrity_and_guardrails.mp4</span><span>1080p H.264</span></div><video controls preload="metadata" poster="screenshots/19_catalog_9view_schema_vdm.png" src="videos/05_data_catalog_integrity_and_guardrails.mp4"></video></div>
+        </div>
+        <div class="card royal"><h3>Full Transparency &amp; Safety</h3><ul>
+          <li><strong>Exception Triage Board:</strong> Interactive family filters, stacked 0&ndash;100 Priority Score chart, 1-click trace buttons, and inline CAT logging.</li>
+          <li><strong>9-View Schema &amp; VWM Mapping:</strong> Documents exact join keys and enterprise CORE / FLEX / JDE table lineage right inside the app.</li>
+          <li><strong>Live Integrity Audit:</strong> Surfaces unmatched EFL IDs, missing CRC rates, quarantined orphaned fee <code>SVC-ORPHAN-999</code> ($18,500), and Cat-7x review lines.</li>
+          <li><strong>Fail-Closed Security Guardrail:</strong> Blocks prompt injection and mutating SQL (<code>DROP TABLE</code> / raw <code>SELECT</code>) while permitting only governed CAT write-back tools.</li>
+        </ul>
+        <div class="thumb-block"><div class="thumb-label">Key Companion Screens</div><div class="thumb-row"><img src="screenshots/18_exception_triage_board.png" alt="Triage board" /><img src="screenshots/21_guardrail_injection_blocked.png" alt="Guardrail blocked" /></div></div></div>
+      </div>
+    </section>
+
+    <!-- Slide 10 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Technical Architecture</div><div class="s-title">Governed MCP Tool Layer &amp; Safe Write-Back Isolation</div></div><span class="s-badge">14 MCP Tools</span></div>
+      <div class="grid-2">
+        <div class="card emerald"><h3>1. Read-Only Analytical Intelligence (10 Tools)</h3><ul>
+          <li><strong>Zero AI Calculation:</strong> Every revenue, margin, burn %, utilization %, and priority score is computed deterministically in SQL/Python over the 9 <code>vwm.*</code> views.</li>
+          <li><strong>Anomaly &amp; Numeric Guardrails:</strong> Blocks hallucinated numbers and rejects any LLM text claiming 100% on <code>SP-REV-901</code>, -100% on <code>SP-COST-902</code>, or $0 on unmapped rates.</li>
+          <li><strong>Flexible LLM or Zero-LLM Runtime:</strong> Instant <code>0.018 s</code> deterministic engine built in, plus plug-and-play LiteLLM for local Ollama (Apache 2.0), Gemini, or OpenAI.</li>
+          <li><strong>Standard MCP Interface:</strong> Exposes all 14 tools and 5 metadata resources over JSON-RPC 2.0 stdio for reuse by external agents.</li>
+        </ul></div>
+        <div class="card royal"><h3>2. Governed CAT Write-Back Isolation (4 Tools)</h3><ul>
+          <li><strong>Zero ERP Mutation:</strong> Write-backs never alter OWMS, GTE, CRC, or EFL actuals; all human context lives in 4 isolated CAT tables linked by business keys.</li>
+          <li><strong>Multi-Modal Capture:</strong> Users write back via slash commands (<code>/comment</code>, <code>/assign</code>, <code>/decide</code>, <code>/log</code>), plain English, the inline Chat drawer, or Action Plan Hub.</li>
+          <li><strong>RBAC &amp; RLS on Writes:</strong> PMs can comment/assign only within their 6 contracts; official Business Leader Decisions (<code>/decide</code>) require the BU Manager persona.</li>
+          <li><strong>Refresh-Proof Audit History:</strong> Linking via <code>contract_id</code>, <code>project_uuid</code>, <code>task_uuid</code>, and <code>exception_id</code> ensures daily warehouse refreshes never orphan records.</li>
+        </ul></div>
+      </div>
+      <div class="callout">Design Principle: Separate immutable financial truth (9 read-only views) from collaborative management accountability (4 CAT write-back tables).</div>
+    </section>
+
+    <!-- Slide 11 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Measured Verification</div><div class="s-title">Automated Testing, Golden Evaluation &amp; Portfolio Benchmarks</div></div><span class="s-badge">100% Measured</span></div>
+      <div class="grid-2">
+        <div class="card emerald"><h3>Automated Quality &amp; Evaluation Results</h3><ul>
+          <li><strong>24/24 Golden Evaluation (<code>rules</code>):</strong> 100% Status Match (<b>24/24</b>), MCP Tool Match (<b>24/24</b>), Grounded Fact Match (<b>24/24</b>), and Guardrail Pass (<b>24/24</b>) at <b>0.018 s</b> median / 0.038 s P95.</li>
+          <li><strong>19/19 Pytest &amp; Headless UI Checks:</strong> Verifies all 9 views, Priority Score math, all 5 injected anomalies, all 4 CAT write-back tables, RBAC/RLS denials, JSON-RPC 2.0 MCP, and all 7 Streamlit pages.</li>
+          <li><strong>Zero Silent Data Loss:</strong> 1 unmatched EFL contract, 48 unmapped CRC hours, 1 orphaned fee line ($18.5k), and 1 Cat-7x suspense line ($4.2k) surfaced cleanly.</li>
+          <li><strong>Full Audit Reproducibility:</strong> Raw records saved in <code>results/eval/eval_report.md</code> and <code>evaluation_summary.json</code>.</li>
+        </ul></div>
+        <div class="card royal"><h3>Synthetic TIC Benchmark Portfolio (As-of Nov 20, 2026)</h3><ul>
+          <li><strong>Portfolio Scale:</strong> 10 Business Units (<code>BU-RENEW-01</code> .. <code>BU-CONSUM-10</code>), 20 contracts (12 FS, 6 T&amp;M, 1 <code>SP-REV-901</code>, 1 <code>SP-COST-902</code>).</li>
+          <li><strong>MTD Commercial Revenue:</strong> <b>$1,297,980</b> recognized vs. $1,606,100 target (-$308,120 gap); <b>59.9%</b> commercial provisional margin on complete-rate linked contracts.</li>
+          <li><strong>Net Operating Margin Bridge:</strong> After +$45,000 <code>SP-REV-901</code>, -$28,500 <code>SP-COST-902</code>, and -$120,000 Indirect Lab Burden &rarr; <b>$700,743 (52.2%)</b>.</li>
+          <li><strong>Priority Queue &amp; Compliance:</strong> 9 active exceptions led by <code>FS-AERO-104</code> (100.0/100); 36h ($7,020) unbilled WIP &gt;7d lag; <code>TM-ENV-401</code> flagged at 64.0% util.</li>
+        </ul></div>
+      </div>
+      <div class="callout">Proven Reusable Blueprint: Finance (IRIS) + Rollout Adoption (CORE Pulse) + Margin &amp; Write-Back Triage (Apex Margin Advisor).</div>
+    </section>
+
+    <!-- Slide 12 -->
+    <section class="slide">
+      <div class="s-top"><div><div class="kicker">Enterprise Production Path</div><div class="s-title">Connecting Live VWM Data (CORE / FLEX / JDE) &amp; SharePoint CAT</div></div><span class="s-badge">Roadmap</span></div>
+      <div class="grid-4">
+        <div class="card emerald"><span class="pill e">Phase 1 &middot; Ready Now</span><h3>Synthetic Benchmark &amp; UX</h3><p>9 governed views, 14 MCP tools, 3 personas, 4-table CAT write-back, and verified 24/24 Golden Eval.</p></div>
+        <div class="card royal"><span class="pill r">Phase 2 &middot; Data Bind</span><h3>Live CORE / FLEX / JDE</h3><p>Point <code>vwm.*</code> views to production SQL Server replicas (<code>Project.*</code>, <code>F5201</code>, <code>F4211</code>, <code>F0911</code>, <code>F0901</code>, <code>F06116Z1</code>) with LEFT JOIN rules.</p></div>
+        <div class="card amber"><span class="pill a">Phase 3 &middot; Enterprise Auth</span><h3>SSO, RLS &amp; SharePoint CAT</h3><p>Bind Microsoft Entra ID to SQL Server <code>SESSION_CONTEXT</code> RLS and connect CAT write-back to SharePoint VWM lists or enterprise SQL.</p></div>
+        <div class="card"><span class="pill e">Phase 4 &middot; Scale</span><h3>Automated Weekly Triage</h3><p>Schedule weekly exception scorecards, Teams/email digests for overdue N-1 actions, and Finance reconciliation workflows.</p></div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <h3>3 Immediate Actions to Go Live on Pilot Business Unit (Zero UI Rewrite)</h3>
+        <p><b>1. Upgrade VDM FLOW Joins to LEFT JOIN:</b> Replace legacy INNER JOINs on FLEX <code>F5201</code>/<code>F4211</code> so unmatched contracts surface instead of disappearing &nbsp;|&nbsp; <b>2. Confirm Rate History &amp; Cat-7x Rules:</b> Validate discipline charge/sell history and Finance suspense review &nbsp;|&nbsp; <b>3. Bind CAT Write-Back Store:</b> Point <code>ActionTrackerStore</code> to enterprise SQL or SharePoint VWM lists.</p>
+      </div>
+    </section>
+
+  </div>
+  <div class="nav-bar">
+    <button onclick="go(-1)">&larr; Prev</button>
+    <span id="counter">Slide 1 / 12</span>
+    <button onclick="go(1)">Next &rarr;</button>
+  </div>
+</div>
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let idx = 0;
+  function show(n) {
+    slides.forEach(s => { s.classList.remove('active'); s.querySelectorAll('video').forEach(v => v.pause()); });
+    idx = (n + slides.length) % slides.length;
+    slides[idx].classList.add('active');
+    document.getElementById('counter').textContent = 'Slide ' + (idx + 1) + ' / ' + slides.length;
+  }
+  function go(d) { show(idx + d); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') go(1);
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(-1);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+# Machine-readable TIC Portfolio Margin & Exception Semantic Catalog
+version: "1.0"
+as_of_date: "2026-11-20"
+
+modules:
+  OWMS:
+    full_name: "Operations Work Management System"
+    real_vdm_source: "CORE (Project.Project, ProjectService, ProjectPhase, ProjectTask, ProjectServiceInvoiceMilestone, ProjectBillable, Admin.*)"
+    views: ["vwm.Dim_Contracts", "vwm.Dim_Services", "vwm.Dim_Tasks"]
+  EFL:
+    full_name: "Enterprise Financial Ledger"
+    real_vdm_source: "JD Edwards / FLEX (proddta.F5201, F4211, F0911, F0901)"
+    views: ["vwm.Fact_GeneralLedger", "vwm.Fact_SharedOverheadAllocation"]
+  GTE:
+    full_name: "Global Time & Expense Engine"
+    real_vdm_source: "CORE TimecardRow / FLEX proddta.F06116Z1 & F069116"
+    views: ["vwm.Fact_Timesheets"]
+  CRC:
+    full_name: "Commercial Rate Catalog"
+    real_vdm_source: "CORE Admin.Discipline, DivisionDiscipline, ProjectDiscipline"
+    views: ["vwm.Dim_RateCatalog"]
+  CAT:
+    full_name: "Collaborative Action Tracker"
+    real_vdm_source: "SharePoint Lists (VWM Actions, VWM Comments, VWM Decisions, VWM Exception States, VWM Commitments)"
+    views: ["vwm.Fact_Exceptions", "vwm.Fact_ActionLog"]
+
+contract_methodologies:
+  Fixed-Scope (FS):
+    economic_model: "Revenue capped by lump-sum or deliverable milestone schedule; direct labor hours reduce margin dollar-for-dollar."
+    contract_total_value: "SUM(Defined Milestone Deliverable Fees WHERE is_billable = 1 AND is_orphaned = 0)"
+    target_revenue_monthly: "SUM(Fees for tasks scheduled to complete in the active month)"
+    recognized_revenue: "SUM(Milestone Deliverable Fee * Verified Completion %); blocked when actual hours > 150% of plan."
+    direct_labor_cost: "SUM(Approved Labor Hours * Discipline Hourly Cost Rate)"
+    provisional_margin_pct: "(Recognized Revenue - Actual Direct Labor Cost - Direct Expenses) / Recognized Revenue * 100"
+    thresholds: "Task Hour Burn Alert > 115% of plan; Runaway Cost Alert > 150% of plan (blocks automated revenue accrual)."
+  Time & Materials (T&M):
+    economic_model: "Revenue expands proportionally with every approved billable hour at Commercial Rate Catalog sell rates."
+    contract_total_value: "Open call-off / hourly rate ceiling"
+    target_revenue_monthly: "SUM(Planned Labor Hours * Discipline Billable Sell Rate)"
+    recognized_revenue: "SUM(Approved Billable Hours * Discipline Billable Sell Rate)"
+    direct_labor_cost: "SUM(All Logged Labor Hours * Discipline Hourly Cost Rate); unmapped rates flagged as unvalued exposure, never $0."
+    provisional_margin_pct: "(Recognized Revenue - Actual Direct Labor Cost) / Recognized Revenue * 100"
+    thresholds: "Under-Utilization Alert < 80% billable utilization; Unapproved Billing Lag > 7 business days."
+  Special Purpose — Revenue-Only (SP-REV):
+    economic_model: "Centralized commercial rebates, volume bonuses, or annual licensing fees with $0 tracked operational labor."
+    handling_rule: "NEVER report 100% margin. Always display: N/A (Commercial Revenue Adjustment Contract)."
+  Special Purpose — Cost-Only (SP-COST):
+    economic_model: "Internal technician holding pools, calibration centers, or non-billable pilot testing with $0 recognized revenue."
+    handling_rule: "NEVER report -100% margin. Always display: N/A (Internal Operational Holding Pool)."
+
+priority_scoring:
+  materiality_max: 45
+  materiality_formula: "min(45, 45 * log10(Capital_at_Risk / 5000 + 1))"
+  urgency_max: 25
+  urgency_tiers: "Due <= 3 days (or overdue): 25 pts | <= 7 days: 15 pts | <= 30 days: 5 pts"
+  deterioration_max: 15
+  deterioration_tiers: "Hour burn > 150%: 15 pts | 120%–150%: 10 pts | 100%–120%: 5 pts"
+  action_latency_max: 15
+  action_latency_tiers: "Unresolved > 14 days: 15 pts | 7–14 days: 10 pts | New (< 7 days): 3 pts"
+
+exception_families:
+  - "Setup & Integration Gaps"
+  - "Labor & Timesheet Compliance"
+  - "Operational Delivery Risks"
+  - "Financial & Margin Decay"
+
+join_keys:
+  - "Dim_Contracts.project_uuid -> Dim_Services.project_uuid -> Dim_Tasks.project_uuid -> Fact_Timesheets.project_uuid"
+  - "Dim_Contracts.efl_contract_id -> Fact_GeneralLedger.efl_contract_id (LEFT JOIN stripping leading zeroes & trimming whitespace)"
+  - "Fact_Timesheets.discipline_id -> Dim_RateCatalog.discipline_id (LEFT JOIN matching effective_year = YEAR(work_date))"
+  - "Dim_Contracts.operating_unit_id -> Fact_SharedOverheadAllocation.operating_unit_id"
+  - "Dim_Contracts.project_uuid -> Fact_Exceptions.project_uuid -> Fact_ActionLog.exception_uuid"
+
+out_of_scope_topics:
+  - pattern: "\\b(payroll\\s+salary|individual\\s+compensation|bonus\\s+payout|employee\\s+ssn|social\\s+security)\\b"
+    reason: "Individual employee compensation and HR payroll records are outside the TIC portfolio margin analytics layer."
+  - pattern: "\\b(accounts\\s+receivable\\s+aging|cash\\s+collections\\s+dso|bank\\s+reconciliation|tax\\s+filing)\\b"
+    reason: "Treasury cash collections, AR aging, and statutory tax filings are not yet connected to the 9-view VWM extract (see VWM Data Analyst Guide Section 7 open points)."
+  - pattern: "\\b(safety\\s+trir|lost\\s+time\\s+injury|iso\\s+audit\\s+nonconformity\\s+score)\\b"
+    reason: "Safety and quality indicators are not yet available in the current 9-view warehouse; Apex Margin Advisor reports them as unavailable rather than inventing figures."
